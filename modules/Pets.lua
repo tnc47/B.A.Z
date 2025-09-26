@@ -1,5 +1,5 @@
 return {
-    petsFolder = workspace:FindFirstChild("Pets"),
+    petsFolder = ,
 
     -- Cache ต่าง ๆ
     partCache = {},

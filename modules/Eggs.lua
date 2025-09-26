@@ -62,7 +62,7 @@ end
 
 return {
     -- Roots
-    eggsFolder = workspace:FindFirstChild("PlayerBuiltBlocks"),
+    eggsFolder = ,
 
     -- Caches
     partCache = {},   -- BasePart / Decal / Texture state
