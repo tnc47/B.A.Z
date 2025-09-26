@@ -1,6 +1,8 @@
 local Eggs = loadstring(game:HttpGet("https://raw.githubusercontent.com/tnc47/B.A.Z/refs/heads/main/modules/Eggs.lua"))()
 local Pets = loadstring(game:HttpGet("https://raw.githubusercontent.com/tnc47/B.A.Z/refs/heads/main/modules/Pets.lua"))()
 local Island = loadstring(game:HttpGet("https://raw.githubusercontent.com/tnc47/B.A.Z/refs/heads/main/modules/Island.lua"))()
+local Inventory = loadstring(game:HttpGet("https://raw.githubusercontent.com/tnc47/B.A.Z/refs/heads/main/modules/Inventory.lua"))()
+
 
 function DumpTable(table, nb)
     if nb == nil then
