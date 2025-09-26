@@ -9,7 +9,7 @@ local function loadModuleRaw(name: string, url: string)
 end
 
 -- ===== Load all modules =====
-local Gui      = loadModuleRaw("RayfieldModify",     "https://raw.githubusercontent.com/tnc47/B.A.Z/refs/heads/main/modules/Rayfield.lua")
+local Gui      = loadModuleRaw("Rayfield",           "https://raw.githubusercontent.com/tnc47/B.A.Z/refs/heads/main/modules/GUI/Rayfield.lua")
 local Eggs     = loadModuleRaw("Eggs",               "https://raw.githubusercontent.com/tnc47/B.A.Z/refs/heads/main/modules/Eggs.lua")
 local Pets     = loadModuleRaw("Pets",               "https://raw.githubusercontent.com/tnc47/B.A.Z/refs/heads/main/modules/Pets.lua")
 local Island   = loadModuleRaw("Island",             "https://raw.githubusercontent.com/tnc47/B.A.Z/refs/heads/main/modules/Island.lua")
@@ -17,9 +17,9 @@ local Inventory= loadModuleRaw("Inventory",          "https://raw.githubusercont
 local Utils    = loadModuleRaw("Utils",              "https://raw.githubusercontent.com/tnc47/B.A.Z/refs/heads/main/modules/Utils.lua")
 
 local Window = Gui:CreateWindow({
-   Name = "🪽FunScripts🪽",
+   Name = "FunScripts",
    Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
-   LoadingTitle = "🪽FunScripts🪽",
+   LoadingTitle = "FunScripts",
    LoadingSubtitle = "by Benjamin",
    Theme = "Default", -- Check https://docs.sirius.menu/rayfield/configuration/themes
 
