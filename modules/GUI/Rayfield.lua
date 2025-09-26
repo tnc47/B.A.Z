@@ -1,16 +1,28 @@
+--[[
+
+Rayfield Interface Suite
+by Sirius
+
+shlex | Designing + Programming
+iRay  | Programming
+
+]]
+
+
+
 local Release = "Beta 8"
 local NotificationDuration = 6.5
-local QuickQFolder = "QuickQ"
-local ConfigurationFolder = QuickQFolder .. "/Configurations"
+local RayfieldFolder = "Rayfield"
+local ConfigurationFolder = RayfieldFolder .. "/Configurations"
 local ConfigurationExtension = ".rfld"
 
 
 
-local QuickQLibrary = {
+local RayfieldLibrary = {
 	Flags = {},
 	Theme = {
 		Default = {
-			TextFont = "Default", -- Default will use the various font faces used across QuickQ
+			TextFont = "Default", -- Default will use the various font faces used across Rayfield
 			TextColor = Color3.fromRGB(240, 240, 240),
 
 			Background = Color3.fromRGB(25, 25, 25),
@@ -49,7 +61,7 @@ local QuickQLibrary = {
 			PlaceholderColor = Color3.fromRGB(178, 178, 178)
 		},
 		Light = {
-			TextFont = "Gotham",           -- Default will use the various font faces used across QuickQ
+			TextFont = "Gotham",           -- Default will use the various font faces used across Rayfield
 			TextColor = Color3.fromRGB(50, 50, 50), -- i need to make all text 240, 240, 240 and base gray on transparency not color to do this
 
 			Background = Color3.fromRGB(255, 255, 255),
@@ -102,34 +114,34 @@ local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
 
 -- Interface Management
-local QuickQ = game:GetObjects("rbxassetid://10804731440")[1]
+local Rayfield = game:GetObjects("rbxassetid://10804731440")[1]
 
-QuickQ.Enabled = false
+Rayfield.Enabled = false
 
 
 if gethui then
-	QuickQ.Parent = gethui()
+	Rayfield.Parent = gethui()
 elseif syn.protect_gui then
-	syn.protect_gui(QuickQ)
-	QuickQ.Parent = CoreGui
+	syn.protect_gui(Rayfield)
+	Rayfield.Parent = CoreGui
 elseif CoreGui:FindFirstChild("RobloxGui") then
-	QuickQ.Parent = CoreGui:FindFirstChild("RobloxGui")
+	Rayfield.Parent = CoreGui:FindFirstChild("RobloxGui")
 else
-	QuickQ.Parent = CoreGui
+	Rayfield.Parent = CoreGui
 end
 
 if gethui then
 	for _, Interface in ipairs(gethui():GetChildren()) do
-		if Interface.Name == QuickQ.Name and Interface ~= QuickQ then
+		if Interface.Name == Rayfield.Name and Interface ~= Rayfield then
 			Interface.Enabled = false
-			Interface.Name = "QuickQ-Old"
+			Interface.Name = "Rayfield-Old"
 		end
 	end
 else
 	for _, Interface in ipairs(CoreGui:GetChildren()) do
-		if Interface.Name == QuickQ.Name and Interface ~= QuickQ then
+		if Interface.Name == Rayfield.Name and Interface ~= Rayfield then
 			Interface.Enabled = false
-			Interface.Name = "QuickQ-Old"
+			Interface.Name = "Rayfield-Old"
 		end
 	end
 end
@@ -137,13 +149,13 @@ end
 -- Object Variables
 
 local Camera = workspace.CurrentCamera
-local Main = QuickQ.Main
+local Main = Rayfield.Main
 local Topbar = Main.Topbar
 local Elements = Main.Elements
 local LoadingFrame = Main.LoadingFrame
 local TabList = Main.TabList
 
-QuickQ.DisplayOrder = 100
+Rayfield.DisplayOrder = 100
 LoadingFrame.Version.Text = Release
 
 
@@ -155,13 +167,13 @@ local CEnabled = false
 local Minimised = false
 local Hidden = false
 local Debounce = false
-local Notifications = QuickQ.Notifications
+local Notifications = Rayfield.Notifications
 
-local SelectedTheme = QuickQLibrary.Theme.Default
+local SelectedTheme = RayfieldLibrary.Theme.Default
 
 function ChangeTheme(ThemeName)
-	SelectedTheme = QuickQLibrary.Theme[ThemeName]
-	for _, obj in ipairs(QuickQ:GetDescendants()) do
+	SelectedTheme = RayfieldLibrary.Theme[ThemeName]
+	for _, obj in ipairs(Rayfield:GetDescendants()) do
 		if obj.ClassName == "TextLabel" or obj.ClassName == "TextBox" or obj.ClassName == "TextButton" then
 			if SelectedTheme.TextFont ~= "Default" then
 				obj.TextColor3 = SelectedTheme.TextColor
@@ -170,14 +182,14 @@ function ChangeTheme(ThemeName)
 		end
 	end
 
-	QuickQ.Main.BackgroundColor3 = SelectedTheme.Background
-	QuickQ.Main.Topbar.BackgroundColor3 = SelectedTheme.Topbar
-	QuickQ.Main.Topbar.CornerRepair.BackgroundColor3 = SelectedTheme.Topbar
-	QuickQ.Main.Shadow.Image.ImageColor3 = SelectedTheme.Shadow
+	Rayfield.Main.BackgroundColor3 = SelectedTheme.Background
+	Rayfield.Main.Topbar.BackgroundColor3 = SelectedTheme.Topbar
+	Rayfield.Main.Topbar.CornerRepair.BackgroundColor3 = SelectedTheme.Topbar
+	Rayfield.Main.Shadow.Image.ImageColor3 = SelectedTheme.Shadow
 
-	QuickQ.Main.Topbar.ChangeSize.ImageColor3 = SelectedTheme.TextColor
-	QuickQ.Main.Topbar.Hide.ImageColor3 = SelectedTheme.TextColor
-	QuickQ.Main.Topbar.Theme.ImageColor3 = SelectedTheme.TextColor
+	Rayfield.Main.Topbar.ChangeSize.ImageColor3 = SelectedTheme.TextColor
+	Rayfield.Main.Topbar.Hide.ImageColor3 = SelectedTheme.TextColor
+	Rayfield.Main.Topbar.Theme.ImageColor3 = SelectedTheme.TextColor
 
 	for _, TabPage in ipairs(Elements:GetChildren()) do
 		for _, Element in ipairs(TabPage:GetChildren()) do
@@ -214,10 +226,8 @@ local function AddDraggingFunctionality(DragPoint, Main)
 			if Input == DragInput and Dragging then
 				local Delta = Input.Position - MousePos
 				TweenService:Create(Main, TweenInfo.new(0.45, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
-					{
-						Position = UDim2.new(FramePos.X.Scale, FramePos.X.Offset + Delta.X, FramePos.Y.Scale,
-							FramePos.Y.Offset + Delta.Y)
-					}):Play()
+					{ Position = UDim2.new(FramePos.X.Scale, FramePos.X.Offset + Delta.X, FramePos.Y.Scale,
+						FramePos.Y.Offset + Delta.Y) }):Play()
 			end
 		end)
 	end)
@@ -234,22 +244,18 @@ end
 local function LoadConfiguration(Configuration)
 	local Data = HttpService:JSONDecode(Configuration)
 	for FlagName, FlagValue in next, Data do
-		if QuickQLibrary.Flags[FlagName] then
+		if RayfieldLibrary.Flags[FlagName] then
 			spawn(function()
-				if QuickQLibrary.Flags[FlagName].Type == "ColorPicker" then
-					QuickQLibrary.Flags[FlagName]:Set(UnpackColor(FlagValue))
+				if RayfieldLibrary.Flags[FlagName].Type == "ColorPicker" then
+					RayfieldLibrary.Flags[FlagName]:Set(UnpackColor(FlagValue))
 				else
-					if QuickQLibrary.Flags[FlagName].CurrentValue or QuickQLibrary.Flags[FlagName].CurrentKeybind or QuickQLibrary.Flags[FlagName].CurrentOption or QuickQLibrary.Flags[FlagName].Color ~= FlagValue then
-						QuickQLibrary.Flags[FlagName]:Set(FlagValue)
-					end
+					if RayfieldLibrary.Flags[FlagName].CurrentValue or RayfieldLibrary.Flags[FlagName].CurrentKeybind or RayfieldLibrary.Flags[FlagName].CurrentOption or RayfieldLibrary.Flags[FlagName].Color ~= FlagValue then
+						RayfieldLibrary.Flags[FlagName]:Set(FlagValue) end
 				end
 			end)
 		else
-			QuickQLibrary:Notify({
-				Title = "Flag Error",
-				Content = "QuickQ was unable to find '" ..
-					FlagName .. "'' in the current script"
-			})
+			RayfieldLibrary:Notify({ Title = "Flag Error", Content = "Rayfield was unable to find '" ..
+			FlagName .. "'' in the current script" })
 		end
 	end
 end
@@ -257,7 +263,7 @@ end
 local function SaveConfiguration()
 	if not CEnabled then return end
 	local Data = {}
-	for i, v in pairs(QuickQLibrary.Flags) do
+	for i, v in pairs(RayfieldLibrary.Flags) do
 		if v.Type == "ColorPicker" then
 			Data[i] = PackColor(v.Color)
 		else
@@ -418,13 +424,13 @@ local neon = (function() -- Open sourced neon module
 					local s, c = math.sin(math.rad(rot)), math.cos(math.rad(rot))
 					local vec = tl
 					tl = Vector2.new(c * (tl.x - mid.x) - s * (tl.y - mid.y), s * (tl.x - mid.x) + c * (tl.y - mid.y)) +
-						mid
+					mid
 					tr = Vector2.new(c * (tr.x - mid.x) - s * (tr.y - mid.y), s * (tr.x - mid.x) + c * (tr.y - mid.y)) +
-						mid
+					mid
 					bl = Vector2.new(c * (bl.x - mid.x) - s * (bl.y - mid.y), s * (bl.x - mid.x) + c * (bl.y - mid.y)) +
-						mid
+					mid
 					br = Vector2.new(c * (br.x - mid.x) - s * (br.y - mid.y), s * (br.x - mid.x) + c * (br.y - mid.y)) +
-						mid
+					mid
 				end
 			end
 			DrawQuad(
@@ -490,7 +496,7 @@ local neon = (function() -- Open sourced neon module
 	return module
 end)()
 
-function QuickQLibrary:Notify(NotificationSettings)
+function RayfieldLibrary:Notify(NotificationSettings)
 	spawn(function()
 		local ActionCompleted = true
 		local Notification = Notifications.Template:Clone()
@@ -516,7 +522,7 @@ function QuickQLibrary:Notify(NotificationSettings)
 				ActionCompleted = false
 				local NewAction = Notification.Actions.Template:Clone()
 				NewAction.BackgroundColor3 = SelectedTheme.NotificationActionsBackground
-				if SelectedTheme ~= QuickQLibrary.Theme.Default then
+				if SelectedTheme ~= RayfieldLibrary.Theme.Default then
 					NewAction.TextColor3 = SelectedTheme.TextColor
 				end
 				NewAction.Name = Action.Name
@@ -530,7 +536,7 @@ function QuickQLibrary:Notify(NotificationSettings)
 				NewAction.MouseButton1Click:Connect(function()
 					local Success, Response = pcall(Action.Callback)
 					if not Success then
-						print("QuickQ | Action: " .. Action.Name .. " Callback Error " .. tostring(Response))
+						print("Rayfield | Action: " .. Action.Name .. " Callback Error " .. tostring(Response))
 					end
 					ActionCompleted = true
 				end)
@@ -575,8 +581,7 @@ function QuickQLibrary:Notify(NotificationSettings)
 
 		-- Requires Graphics Level 8-10
 		if getgenv().SecureMode == nil then
-			TweenService:Create(Notification, TweenInfo.new(0.3, Enum.EasingStyle.Quint),
-				{ BackgroundTransparency = 0.4 })
+			TweenService:Create(Notification, TweenInfo.new(0.3, Enum.EasingStyle.Quint), { BackgroundTransparency = 0.4 })
 				:Play()
 		else
 			if not getgenv().SecureMode then
@@ -588,7 +593,7 @@ function QuickQLibrary:Notify(NotificationSettings)
 			end
 		end
 
-		if QuickQ.Name == "QuickQ" then
+		if Rayfield.Name == "Rayfield" then
 			neon:BindFrame(Notification.BlurModule, {
 				Transparency = 0.98,
 				BrickColor = BrickColor.new("Institutional white"),
@@ -646,8 +651,7 @@ function QuickQLibrary:Notify(NotificationSettings)
 			:Play()
 		TweenService:Create(Notification.Title, TweenInfo.new(0.6, Enum.EasingStyle.Quint), { TextTransparency = 1 })
 			:Play()
-		TweenService:Create(Notification.Description, TweenInfo.new(0.6, Enum.EasingStyle.Quint),
-			{ TextTransparency = 1 })
+		TweenService:Create(Notification.Description, TweenInfo.new(0.6, Enum.EasingStyle.Quint), { TextTransparency = 1 })
 			:Play()
 		wait(0.2)
 		if not getgenv().SecureMode then
@@ -661,12 +665,8 @@ end
 
 function Hide()
 	Debounce = true
-	QuickQLibrary:Notify({
-		Title = "Interface Hidden",
-		Content =
-		"The interface has been hidden, you can unhide the interface by tapping K",
-		Duration = 7
-	})
+	RayfieldLibrary:Notify({ Title = "Interface Hidden", Content =
+	"The interface has been hidden, you can unhide the interface by tapping K", Duration = 7 })
 	TweenService:Create(Main, TweenInfo.new(0.5, Enum.EasingStyle.Quint), { Size = UDim2.new(0, 470, 0, 400) }):Play()
 	TweenService:Create(Main.Topbar, TweenInfo.new(0.5, Enum.EasingStyle.Quint), { Size = UDim2.new(0, 470, 0, 45) })
 		:Play()
@@ -758,8 +758,7 @@ function Unhide()
 					:Play()
 				TweenService:Create(tabbtn.Title, TweenInfo.new(0.3, Enum.EasingStyle.Quint), { TextTransparency = 0 })
 					:Play()
-				TweenService:Create(tabbtn.Shadow, TweenInfo.new(0.3, Enum.EasingStyle.Quint),
-					{ ImageTransparency = 0.9 })
+				TweenService:Create(tabbtn.Shadow, TweenInfo.new(0.3, Enum.EasingStyle.Quint), { ImageTransparency = 0.9 })
 					:Play()
 				TweenService:Create(tabbtn.Image, TweenInfo.new(0.3, Enum.EasingStyle.Quint), { ImageTransparency = 0 })
 					:Play()
@@ -770,8 +769,7 @@ function Unhide()
 					:Play()
 				TweenService:Create(tabbtn.Image, TweenInfo.new(0.3, Enum.EasingStyle.Quint), { ImageTransparency = 0.2 })
 					:Play()
-				TweenService:Create(tabbtn.Shadow, TweenInfo.new(0.3, Enum.EasingStyle.Quint),
-					{ ImageTransparency = 0.7 })
+				TweenService:Create(tabbtn.Shadow, TweenInfo.new(0.3, Enum.EasingStyle.Quint), { ImageTransparency = 0.7 })
 					:Play()
 				TweenService:Create(tabbtn.Title, TweenInfo.new(0.3, Enum.EasingStyle.Quint), { TextTransparency = 0.2 })
 					:Play()
@@ -869,14 +867,12 @@ function Maximise()
 					:Play()
 				TweenService:Create(tabbtn.UIStroke, TweenInfo.new(0.3, Enum.EasingStyle.Quint), { Transparency = 1 })
 					:Play()
-				TweenService:Create(tabbtn.Shadow, TweenInfo.new(0.3, Enum.EasingStyle.Quint),
-					{ ImageTransparency = 0.9 })
+				TweenService:Create(tabbtn.Shadow, TweenInfo.new(0.3, Enum.EasingStyle.Quint), { ImageTransparency = 0.9 })
 					:Play()
 			else
 				TweenService:Create(tabbtn, TweenInfo.new(0.3, Enum.EasingStyle.Quint), { BackgroundTransparency = 0.7 })
 					:Play()
-				TweenService:Create(tabbtn.Shadow, TweenInfo.new(0.3, Enum.EasingStyle.Quint),
-					{ ImageTransparency = 0.7 })
+				TweenService:Create(tabbtn.Shadow, TweenInfo.new(0.3, Enum.EasingStyle.Quint), { ImageTransparency = 0.7 })
 					:Play()
 				TweenService:Create(tabbtn.Image, TweenInfo.new(0.3, Enum.EasingStyle.Quint), { ImageTransparency = 0.2 })
 					:Play()
@@ -953,7 +949,7 @@ function Minimise()
 	Debounce = false
 end
 
-function QuickQLibrary:CreateWindow(Settings)
+function RayfieldLibrary:CreateWindow(Settings)
 	local Passthrough = false
 	Topbar.Title.Text = Settings.Name
 	Main.Size = UDim2.new(0, 450, 0, 260)
@@ -963,10 +959,10 @@ function QuickQLibrary:CreateWindow(Settings)
 	LoadingFrame.Subtitle.TextTransparency = 1
 	Main.Shadow.Image.ImageTransparency = 1
 	LoadingFrame.Version.TextTransparency = 1
-	LoadingFrame.Title.Text = Settings.LoadingTitle or "QuickQ Interface Suite"
+	LoadingFrame.Title.Text = Settings.LoadingTitle or "Rayfield Interface Suite"
 	LoadingFrame.Subtitle.Text = Settings.LoadingSubtitle or "by Sirius"
-	if Settings.LoadingTitle ~= "QuickQ Interface Suite" then
-		LoadingFrame.Version.Text = "QuickQ UI"
+	if Settings.LoadingTitle ~= "Rayfield Interface Suite" then
+		LoadingFrame.Version.Text = "Rayfield UI"
 	end
 	Topbar.Visible = false
 	Elements.Visible = false
@@ -977,7 +973,7 @@ function QuickQLibrary:CreateWindow(Settings)
 		if not Settings.ConfigurationSaving.FileName then
 			Settings.ConfigurationSaving.FileName = tostring(game.PlaceId)
 		end
-		if not isfolder(QuickQFolder .. "/" .. "Configuration Folders") then
+		if not isfolder(RayfieldFolder .. "/" .. "Configuration Folders") then
 
 		end
 		if Settings.ConfigurationSaving.Enabled == nil then
@@ -1007,10 +1003,10 @@ function QuickQLibrary:CreateWindow(Settings)
 	end
 
 	if Settings.Discord then
-		if not isfolder(QuickQFolder .. "/Discord Invites") then
-			makefolder(QuickQFolder .. "/Discord Invites")
+		if not isfolder(RayfieldFolder .. "/Discord Invites") then
+			makefolder(RayfieldFolder .. "/Discord Invites")
 		end
-		if not isfile(QuickQFolder .. "/Discord Invites" .. "/" .. Settings.Discord.Invite .. ConfigurationExtension) then
+		if not isfile(RayfieldFolder .. "/Discord Invites" .. "/" .. Settings.Discord.Invite .. ConfigurationExtension) then
 			if request then
 				request({
 					Url = 'http://127.0.0.1:6463/rpc?v=1',
@@ -1028,9 +1024,9 @@ function QuickQLibrary:CreateWindow(Settings)
 			end
 
 			if Settings.Discord.RememberJoins then -- We do logic this way so if the developer changes this setting, the user still won't be prompted, only new users
-				writefile(QuickQFolder .. "/Discord Invites" .. "/" .. Settings.Discord.Invite ..
-					ConfigurationExtension,
-					"QuickQ RememberJoins is true for this invite, this invite will not ask you to join again")
+				writefile(RayfieldFolder .. "/Discord Invites" .. "/" .. Settings.Discord.Invite ..
+				ConfigurationExtension,
+					"Rayfield RememberJoins is true for this invite, this invite will not ask you to join again")
 			end
 		else
 
@@ -1043,8 +1039,8 @@ function QuickQLibrary:CreateWindow(Settings)
 			return
 		end
 
-		if not isfolder(QuickQFolder .. "/Key System") then
-			makefolder(QuickQFolder .. "/Key System")
+		if not isfolder(RayfieldFolder .. "/Key System") then
+			makefolder(RayfieldFolder .. "/Key System")
 		end
 
 		if typeof(Settings.KeySettings.Key) == "string" then Settings.KeySettings.Key = { Settings.KeySettings.Key } end
@@ -1056,7 +1052,7 @@ function QuickQLibrary:CreateWindow(Settings)
 					Settings.KeySettings.Key[i] = string.gsub(Settings.KeySettings.Key[i], " ", "")
 				end)
 				if not Success then
-					print("QuickQ | " .. Key .. " Error " .. tostring(Response))
+					print("Rayfield | " .. Key .. " Error " .. tostring(Response))
 				end
 			end
 		end
@@ -1065,9 +1061,9 @@ function QuickQLibrary:CreateWindow(Settings)
 			Settings.KeySettings.FileName = "No file name specified"
 		end
 
-		if isfile(QuickQFolder .. "/Key System" .. "/" .. Settings.KeySettings.FileName .. ConfigurationExtension) then
+		if isfile(RayfieldFolder .. "/Key System" .. "/" .. Settings.KeySettings.FileName .. ConfigurationExtension) then
 			for _, MKey in ipairs(Settings.KeySettings.Key) do
-				if string.find(readfile(QuickQFolder .. "/Key System" .. "/" .. Settings.KeySettings.FileName .. ConfigurationExtension), MKey) then
+				if string.find(readfile(RayfieldFolder .. "/Key System" .. "/" .. Settings.KeySettings.FileName .. ConfigurationExtension), MKey) then
 					Passthrough = true
 				end
 			end
@@ -1075,13 +1071,13 @@ function QuickQLibrary:CreateWindow(Settings)
 
 		if not Passthrough then
 			local AttemptsRemaining = math.random(2, 6)
-			QuickQ.Enabled = false
+			Rayfield.Enabled = false
 			local KeyUI = game:GetObjects("rbxassetid://11380036235")[1]
 
 			if gethui then
 				KeyUI.Parent = gethui()
 			elseif syn.protect_gui then
-				syn.protect_gui(QuickQ)
+				syn.protect_gui(Rayfield)
 				KeyUI.Parent = CoreGui
 			else
 				KeyUI.Parent = CoreGui
@@ -1162,15 +1158,13 @@ function QuickQLibrary:CreateWindow(Settings)
 					end
 				end
 				if KeyFound then
-					TweenService:Create(KeyMain, TweenInfo.new(0.6, Enum.EasingStyle.Quint),
-						{ BackgroundTransparency = 1 })
+					TweenService:Create(KeyMain, TweenInfo.new(0.6, Enum.EasingStyle.Quint), { BackgroundTransparency = 1 })
 						:Play()
 					TweenService:Create(KeyMain, TweenInfo.new(0.6, Enum.EasingStyle.Quint),
 						{ Size = UDim2.new(0, 467, 0, 175) }):Play()
 					TweenService:Create(KeyMain.Shadow.Image, TweenInfo.new(0.5, Enum.EasingStyle.Quint),
 						{ ImageTransparency = 1 }):Play()
-					TweenService:Create(KeyMain.Title, TweenInfo.new(0.4, Enum.EasingStyle.Quint),
-						{ TextTransparency = 1 })
+					TweenService:Create(KeyMain.Title, TweenInfo.new(0.4, Enum.EasingStyle.Quint), { TextTransparency = 1 })
 						:Play()
 					TweenService:Create(KeyMain.Subtitle, TweenInfo.new(0.5, Enum.EasingStyle.Quint),
 						{ TextTransparency = 1 }):Play()
@@ -1186,22 +1180,18 @@ function QuickQLibrary:CreateWindow(Settings)
 						{ TextTransparency = 1 }):Play()
 					TweenService:Create(KeyMain.NoteMessage, TweenInfo.new(0.4, Enum.EasingStyle.Quint),
 						{ TextTransparency = 1 }):Play()
-					TweenService:Create(KeyMain.Hide, TweenInfo.new(0.4, Enum.EasingStyle.Quint),
-						{ ImageTransparency = 1 })
+					TweenService:Create(KeyMain.Hide, TweenInfo.new(0.4, Enum.EasingStyle.Quint), { ImageTransparency = 1 })
 						:Play()
 					wait(0.51)
 					Passthrough = true
 					if Settings.KeySettings.SaveKey then
 						if writefile then
 							writefile(
-								QuickQFolder .. "/Key System" .. "/" ..
-								Settings.KeySettings.FileName .. ConfigurationExtension, FoundKey)
+							RayfieldFolder .. "/Key System" .. "/" ..
+							Settings.KeySettings.FileName .. ConfigurationExtension, FoundKey)
 						end
-						QuickQLibrary:Notify({
-							Title = "Key System",
-							Content =
-							"The key for this script has been saved successfully"
-						})
+						RayfieldLibrary:Notify({ Title = "Key System", Content =
+						"The key for this script has been saved successfully" })
 					end
 				else
 					if AttemptsRemaining == 0 then
@@ -1259,8 +1249,7 @@ function QuickQLibrary:CreateWindow(Settings)
 					{ ImageTransparency = 1 }):Play()
 				TweenService:Create(KeyMain.Title, TweenInfo.new(0.4, Enum.EasingStyle.Quint), { TextTransparency = 1 })
 					:Play()
-				TweenService:Create(KeyMain.Subtitle, TweenInfo.new(0.5, Enum.EasingStyle.Quint),
-					{ TextTransparency = 1 })
+				TweenService:Create(KeyMain.Subtitle, TweenInfo.new(0.5, Enum.EasingStyle.Quint), { TextTransparency = 1 })
 					:Play()
 				TweenService:Create(KeyMain.KeyNote, TweenInfo.new(0.5, Enum.EasingStyle.Quint), { TextTransparency = 1 })
 					:Play()
@@ -1270,15 +1259,14 @@ function QuickQLibrary:CreateWindow(Settings)
 					{ Transparency = 1 }):Play()
 				TweenService:Create(KeyMain.Input.InputBox, TweenInfo.new(0.5, Enum.EasingStyle.Quint),
 					{ TextTransparency = 1 }):Play()
-				TweenService:Create(KeyMain.NoteTitle, TweenInfo.new(0.4, Enum.EasingStyle.Quint),
-					{ TextTransparency = 1 })
+				TweenService:Create(KeyMain.NoteTitle, TweenInfo.new(0.4, Enum.EasingStyle.Quint), { TextTransparency = 1 })
 					:Play()
 				TweenService:Create(KeyMain.NoteMessage, TweenInfo.new(0.4, Enum.EasingStyle.Quint),
 					{ TextTransparency = 1 }):Play()
 				TweenService:Create(KeyMain.Hide, TweenInfo.new(0.4, Enum.EasingStyle.Quint), { ImageTransparency = 1 })
 					:Play()
 				wait(0.51)
-				QuickQLibrary:Destroy()
+				RayfieldLibrary:Destroy()
 				KeyUI:Destroy()
 			end)
 		else
@@ -1291,7 +1279,7 @@ function QuickQLibrary:CreateWindow(Settings)
 
 	Notifications.Template.Visible = false
 	Notifications.Visible = true
-	QuickQ.Enabled = true
+	Rayfield.Enabled = true
 	wait(0.5)
 	TweenService:Create(Main, TweenInfo.new(0.7, Enum.EasingStyle.Quint), { BackgroundTransparency = 0 }):Play()
 	TweenService:Create(Main.Shadow.Image, TweenInfo.new(0.7, Enum.EasingStyle.Quint), { ImageTransparency = 0.55 })
@@ -1359,7 +1347,7 @@ function QuickQLibrary:CreateWindow(Settings)
 			Elements.UIPageLayout.Animated = true
 		end
 
-		if SelectedTheme ~= QuickQLibrary.Theme.Default then
+		if SelectedTheme ~= RayfieldLibrary.Theme.Default then
 			TabButton.Shadow.Visible = false
 		end
 		TabButton.UIStroke.Color = SelectedTheme.TabStroke
@@ -1436,8 +1424,7 @@ function QuickQLibrary:CreateWindow(Settings)
 				end
 			end
 			if Elements.UIPageLayout.CurrentPage ~= TabPage then
-				TweenService:Create(Elements, TweenInfo.new(1, Enum.EasingStyle.Quint),
-					{ Size = UDim2.new(0, 460, 0, 330) })
+				TweenService:Create(Elements, TweenInfo.new(1, Enum.EasingStyle.Quint), { Size = UDim2.new(0, 460, 0, 330) })
 					:Play()
 				Elements.UIPageLayout:JumpTo(TabPage)
 				wait(0.2)
@@ -1477,7 +1464,7 @@ function QuickQLibrary:CreateWindow(Settings)
 					TweenService:Create(Button.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Quint), { Transparency = 1 })
 						:Play()
 					Button.Title.Text = "Callback Error"
-					print("QuickQ | " .. ButtonSettings.Name .. " Callback Error " .. tostring(Response))
+					print("Rayfield | " .. ButtonSettings.Name .. " Callback Error " .. tostring(Response))
 					wait(0.5)
 					Button.Title.Text = ButtonSettings.Name
 					TweenService:Create(Button, TweenInfo.new(0.6, Enum.EasingStyle.Quint),
@@ -1564,8 +1551,7 @@ function QuickQLibrary:CreateWindow(Settings)
 						{ Size = UDim2.new(1, -10, 0.224, 40) }):Play()
 					TweenService:Create(Background, TweenInfo.new(0.6, Enum.EasingStyle.Quint),
 						{ Size = UDim2.new(0, 173, 0, 86) }):Play()
-					TweenService:Create(Display, TweenInfo.new(0.6, Enum.EasingStyle.Quint),
-						{ BackgroundTransparency = 1 })
+					TweenService:Create(Display, TweenInfo.new(0.6, Enum.EasingStyle.Quint), { BackgroundTransparency = 1 })
 						:Play()
 					TweenService:Create(ColorPicker.Interact, TweenInfo.new(0.6, Enum.EasingStyle.Quint),
 						{ Position = UDim2.new(0.289, 0, 0.5, 0) }):Play()
@@ -1595,8 +1581,7 @@ function QuickQLibrary:CreateWindow(Settings)
 						{ Position = UDim2.new(0, 17, 0, 70) }):Play()
 					TweenService:Create(ColorPicker.HexInput, TweenInfo.new(0.5, Enum.EasingStyle.Quint),
 						{ Position = UDim2.new(0, 17, 0, 90) }):Play()
-					TweenService:Create(Display, TweenInfo.new(0.6, Enum.EasingStyle.Quint),
-						{ BackgroundTransparency = 0 })
+					TweenService:Create(Display, TweenInfo.new(0.6, Enum.EasingStyle.Quint), { BackgroundTransparency = 0 })
 						:Play()
 					TweenService:Create(Main.MainPoint, TweenInfo.new(0.2, Enum.EasingStyle.Quint),
 						{ ImageTransparency = 1 }):Play()
@@ -1757,7 +1742,7 @@ function QuickQLibrary:CreateWindow(Settings)
 
 			if Settings.ConfigurationSaving then
 				if Settings.ConfigurationSaving.Enabled and ColorPickerSettings.Flag then
-					QuickQLibrary.Flags[ColorPickerSettings.Flag] = ColorPickerSettings
+					RayfieldLibrary.Flags[ColorPickerSettings.Flag] = ColorPickerSettings
 				end
 			end
 
@@ -1897,7 +1882,7 @@ function QuickQLibrary:CreateWindow(Settings)
 					TweenService:Create(Input.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Quint), { Transparency = 1 })
 						:Play()
 					Input.Title.Text = "Callback Error"
-					print("QuickQ | " .. InputSettings.Name .. " Callback Error " .. tostring(Response))
+					print("Rayfield | " .. InputSettings.Name .. " Callback Error " .. tostring(Response))
 					wait(0.5)
 					Input.Title.Text = InputSettings.Name
 					TweenService:Create(Input, TweenInfo.new(0.6, Enum.EasingStyle.Quint),
@@ -2140,7 +2125,7 @@ function QuickQLibrary:CreateWindow(Settings)
 						TweenService:Create(Dropdown.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Quint),
 							{ Transparency = 1 }):Play()
 						Dropdown.Title.Text = "Callback Error"
-						print("QuickQ | " .. DropdownSettings.Name .. " Callback Error " .. tostring(Response))
+						print("Rayfield | " .. DropdownSettings.Name .. " Callback Error " .. tostring(Response))
 						wait(0.5)
 						Dropdown.Title.Text = DropdownSettings.Name
 						TweenService:Create(Dropdown, TweenInfo.new(0.6, Enum.EasingStyle.Quint),
@@ -2171,8 +2156,7 @@ function QuickQLibrary:CreateWindow(Settings)
 						end
 						TweenService:Create(Dropdown.List, TweenInfo.new(0.3, Enum.EasingStyle.Quint),
 							{ ScrollBarImageTransparency = 1 }):Play()
-						TweenService:Create(Dropdown.Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Quint),
-							{ Rotation = 180 })
+						TweenService:Create(Dropdown.Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Quint), { Rotation = 180 })
 							:Play()
 						wait(0.35)
 						Dropdown.List.Visible = false
@@ -2222,17 +2206,15 @@ function QuickQLibrary:CreateWindow(Settings)
 				if not Success then
 					TweenService:Create(Dropdown, TweenInfo.new(0.6, Enum.EasingStyle.Quint),
 						{ BackgroundColor3 = Color3.fromRGB(85, 0, 0) }):Play()
-					TweenService:Create(Dropdown.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Quint),
-						{ Transparency = 1 })
+					TweenService:Create(Dropdown.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Quint), { Transparency = 1 })
 						:Play()
 					Dropdown.Title.Text = "Callback Error"
-					print("QuickQ | " .. DropdownSettings.Name .. " Callback Error " .. tostring(Response))
+					print("Rayfield | " .. DropdownSettings.Name .. " Callback Error " .. tostring(Response))
 					wait(0.5)
 					Dropdown.Title.Text = DropdownSettings.Name
 					TweenService:Create(Dropdown, TweenInfo.new(0.6, Enum.EasingStyle.Quint),
 						{ BackgroundColor3 = SelectedTheme.ElementBackground }):Play()
-					TweenService:Create(Dropdown.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Quint),
-						{ Transparency = 0 })
+					TweenService:Create(Dropdown.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Quint), { Transparency = 0 })
 						:Play()
 				end
 
@@ -2250,7 +2232,7 @@ function QuickQLibrary:CreateWindow(Settings)
 
 			if Settings.ConfigurationSaving then
 				if Settings.ConfigurationSaving.Enabled and DropdownSettings.Flag then
-					QuickQLibrary.Flags[DropdownSettings.Flag] = DropdownSettings
+					RayfieldLibrary.Flags[DropdownSettings.Flag] = DropdownSettings
 				end
 			end
 
@@ -2332,7 +2314,7 @@ function QuickQLibrary:CreateWindow(Settings)
 							TweenService:Create(Keybind.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Quint),
 								{ Transparency = 1 }):Play()
 							Keybind.Title.Text = "Callback Error"
-							print("QuickQ | " .. KeybindSettings.Name .. " Callback Error " .. tostring(Response))
+							print("Rayfield | " .. KeybindSettings.Name .. " Callback Error " .. tostring(Response))
 							wait(0.5)
 							Keybind.Title.Text = KeybindSettings.Name
 							TweenService:Create(Keybind, TweenInfo.new(0.6, Enum.EasingStyle.Quint),
@@ -2371,7 +2353,7 @@ function QuickQLibrary:CreateWindow(Settings)
 
 			if Settings.ConfigurationSaving then
 				if Settings.ConfigurationSaving.Enabled and KeybindSettings.Flag then
-					QuickQLibrary.Flags[KeybindSettings.Flag] = KeybindSettings
+					RayfieldLibrary.Flags[KeybindSettings.Flag] = KeybindSettings
 				end
 			end
 			return KeybindSettings
@@ -2392,7 +2374,7 @@ function QuickQLibrary:CreateWindow(Settings)
 			Toggle.Title.TextTransparency = 1
 			Toggle.Switch.BackgroundColor3 = SelectedTheme.ToggleBackground
 
-			if SelectedTheme ~= QuickQLibrary.Theme.Default then
+			if SelectedTheme ~= RayfieldLibrary.Theme.Default then
 				Toggle.Switch.Shadow.Visible = false
 			end
 
@@ -2494,7 +2476,7 @@ function QuickQLibrary:CreateWindow(Settings)
 					TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Quint), { Transparency = 1 })
 						:Play()
 					Toggle.Title.Text = "Callback Error"
-					print("QuickQ | " .. ToggleSettings.Name .. " Callback Error " .. tostring(Response))
+					print("Rayfield | " .. ToggleSettings.Name .. " Callback Error " .. tostring(Response))
 					wait(0.5)
 					Toggle.Title.Text = ToggleSettings.Name
 					TweenService:Create(Toggle, TweenInfo.new(0.6, Enum.EasingStyle.Quint),
@@ -2578,7 +2560,7 @@ function QuickQLibrary:CreateWindow(Settings)
 					TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Quint), { Transparency = 1 })
 						:Play()
 					Toggle.Title.Text = "Callback Error"
-					print("QuickQ | " .. ToggleSettings.Name .. " Callback Error " .. tostring(Response))
+					print("Rayfield | " .. ToggleSettings.Name .. " Callback Error " .. tostring(Response))
 					wait(0.5)
 					Toggle.Title.Text = ToggleSettings.Name
 					TweenService:Create(Toggle, TweenInfo.new(0.6, Enum.EasingStyle.Quint),
@@ -2591,7 +2573,7 @@ function QuickQLibrary:CreateWindow(Settings)
 
 			if Settings.ConfigurationSaving then
 				if Settings.ConfigurationSaving.Enabled and ToggleSettings.Flag then
-					QuickQLibrary.Flags[ToggleSettings.Flag] = ToggleSettings
+					RayfieldLibrary.Flags[ToggleSettings.Flag] = ToggleSettings
 				end
 			end
 
@@ -2611,7 +2593,7 @@ function QuickQLibrary:CreateWindow(Settings)
 			Slider.UIStroke.Transparency = 1
 			Slider.Title.TextTransparency = 1
 
-			if SelectedTheme ~= QuickQLibrary.Theme.Default then
+			if SelectedTheme ~= RayfieldLibrary.Theme.Default then
 				Slider.Main.Shadow.Visible = false
 			end
 
@@ -2688,11 +2670,11 @@ function QuickQLibrary:CreateWindow(Settings)
 							TweenInfo.new(0.45, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
 							{ Size = UDim2.new(0, Current - Slider.Main.AbsolutePosition.X, 1, 0) }):Play()
 						local NewValue = SliderSettings.Range[1] +
-							(Location - Slider.Main.AbsolutePosition.X) / Slider.Main.AbsoluteSize.X *
-							(SliderSettings.Range[2] - SliderSettings.Range[1])
+						(Location - Slider.Main.AbsolutePosition.X) / Slider.Main.AbsoluteSize.X *
+						(SliderSettings.Range[2] - SliderSettings.Range[1])
 
 						NewValue = math.floor(NewValue / SliderSettings.Increment + 0.5) *
-							(SliderSettings.Increment * 10000000) / 10000000
+						(SliderSettings.Increment * 10000000) / 10000000
 						if not SliderSettings.Suffix then
 							Slider.Main.Information.Text = tostring(NewValue)
 						else
@@ -2709,7 +2691,7 @@ function QuickQLibrary:CreateWindow(Settings)
 								TweenService:Create(Slider.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Quint),
 									{ Transparency = 1 }):Play()
 								Slider.Title.Text = "Callback Error"
-								print("QuickQ | " .. SliderSettings.Name .. " Callback Error " .. tostring(Response))
+								print("Rayfield | " .. SliderSettings.Name .. " Callback Error " .. tostring(Response))
 								wait(0.5)
 								Slider.Title.Text = SliderSettings.Name
 								TweenService:Create(Slider, TweenInfo.new(0.6, Enum.EasingStyle.Quint),
@@ -2724,11 +2706,9 @@ function QuickQLibrary:CreateWindow(Settings)
 					else
 						TweenService:Create(Slider.Main.Progress,
 							TweenInfo.new(0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
-							{
-								Size = UDim2.new(0,
-									Location - Slider.Main.AbsolutePosition.X > 5 and
-									Location - Slider.Main.AbsolutePosition.X or 5, 1, 0)
-							}):Play()
+							{ Size = UDim2.new(0,
+								Location - Slider.Main.AbsolutePosition.X > 5 and
+								Location - Slider.Main.AbsolutePosition.X or 5, 1, 0) }):Play()
 						Loop:Disconnect()
 					end
 				end)
@@ -2737,15 +2717,11 @@ function QuickQLibrary:CreateWindow(Settings)
 			function SliderSettings:Set(NewVal)
 				TweenService:Create(Slider.Main.Progress,
 					TweenInfo.new(0.45, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
-					{
-						Size = UDim2.new(0,
-							Slider.Main.AbsoluteSize.X *
-							((NewVal + SliderSettings.Range[1]) / (SliderSettings.Range[2] - SliderSettings.Range[1])) >
-							5 and
-							Slider.Main.AbsoluteSize.X * (NewVal / (SliderSettings.Range[2] - SliderSettings.Range[1])) or
-							5,
-							1, 0)
-					}):Play()
+					{ Size = UDim2.new(0,
+						Slider.Main.AbsoluteSize.X *
+						((NewVal + SliderSettings.Range[1]) / (SliderSettings.Range[2] - SliderSettings.Range[1])) > 5 and
+						Slider.Main.AbsoluteSize.X * (NewVal / (SliderSettings.Range[2] - SliderSettings.Range[1])) or 5,
+						1, 0) }):Play()
 				Slider.Main.Information.Text = tostring(NewVal) .. " " .. SliderSettings.Suffix
 				local Success, Response = pcall(function()
 					SliderSettings.Callback(NewVal)
@@ -2756,7 +2732,7 @@ function QuickQLibrary:CreateWindow(Settings)
 					TweenService:Create(Slider.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Quint), { Transparency = 1 })
 						:Play()
 					Slider.Title.Text = "Callback Error"
-					print("QuickQ | " .. SliderSettings.Name .. " Callback Error " .. tostring(Response))
+					print("Rayfield | " .. SliderSettings.Name .. " Callback Error " .. tostring(Response))
 					wait(0.5)
 					Slider.Title.Text = SliderSettings.Name
 					TweenService:Create(Slider, TweenInfo.new(0.6, Enum.EasingStyle.Quint),
@@ -2770,7 +2746,7 @@ function QuickQLibrary:CreateWindow(Settings)
 
 			if Settings.ConfigurationSaving then
 				if Settings.ConfigurationSaving.Enabled and SliderSettings.Flag then
-					QuickQLibrary.Flags[SliderSettings.Flag] = SliderSettings
+					RayfieldLibrary.Flags[SliderSettings.Flag] = SliderSettings
 				end
 			end
 			return SliderSettings
@@ -2818,8 +2794,8 @@ function QuickQLibrary:CreateWindow(Settings)
 	return Window
 end
 
-function QuickQLibrary:Destroy()
-	QuickQ:Destroy()
+function RayfieldLibrary:Destroy()
+	Rayfield:Destroy()
 end
 
 Topbar.ChangeSize.MouseButton1Click:Connect(function()
@@ -2878,27 +2854,24 @@ for _, TopbarButton in ipairs(Topbar:GetChildren()) do
 end
 
 
-function QuickQLibrary:LoadConfiguration()
+function RayfieldLibrary:LoadConfiguration()
 	if CEnabled then
 		pcall(function()
 			if isfile(ConfigurationFolder .. "/" .. CFileName .. ConfigurationExtension) then
 				LoadConfiguration(readfile(ConfigurationFolder .. "/" .. CFileName .. ConfigurationExtension))
-				QuickQLibrary:Notify({
-					Title = "Configuration Loaded",
-					Content =
-					"The configuration file for this script has been loaded from a previous session"
-				})
+				RayfieldLibrary:Notify({ Title = "Configuration Loaded", Content =
+				"The configuration file for this script has been loaded from a previous session" })
 			end
 		end)
 	end
 end
 
-task.delay(3.5, QuickQLibrary.LoadConfiguration, QuickQLibrary)
-if QuickQ:FindFirstChild("Notice") then
-	QuickQ.Notice.Visible = true
-	QuickQ.Notice.Interact.MouseButton1Click:Connect(function()
-		QuickQ.Notice.Visible = false
+task.delay(3.5, RayfieldLibrary.LoadConfiguration, RayfieldLibrary)
+if Rayfield:FindFirstChild("Notice") then
+	Rayfield.Notice.Visible = true
+	Rayfield.Notice.Interact.MouseButton1Click:Connect(function()
+		Rayfield.Notice.Visible = false
 	end)
 end
 
-return QuickQLibrary
+return RayfieldLibrary
