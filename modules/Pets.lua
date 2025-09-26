@@ -1,7 +1,8 @@
-local petsFolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/tnc47/B.A.Z/refs/heads/main/modules/Roblox/BuildAZoo.lua"))().Pets
+local BuildAZoo = game:HttpGet("https://raw.githubusercontent.com/tnc47/B.A.Z/refs/heads/main/modules/Roblox/BuildAZoo.lua")
+local BuildAZooFolder = loadstring(BuildAZoo)()
 
 return {
-    petsFolder = petsFolder,
+    petsFolder = BuildAZooFolder.Pets,
 
     -- Cache ต่าง ๆ
     partCache = {},

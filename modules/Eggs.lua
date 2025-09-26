@@ -1,8 +1,9 @@
-local eggsFolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/tnc47/B.A.Z/refs/heads/main/modules/Roblox/BuildAZoo.lua"))().PlayerBuiltBlocks
+local BuildAZoo = game:HttpGet("https://raw.githubusercontent.com/tnc47/B.A.Z/refs/heads/main/modules/Roblox/BuildAZoo.lua")
+local BuildAZooFolder = loadstring(BuildAZoo)()
 
 return {
     -- Roots
-    eggsFolder = eggsFolder,
+    eggsFolder = BuildAZooFolder.PlayerBuiltBlocks,
 
     -- Caches
     partCache = {},   -- BasePart / Decal / Texture state
