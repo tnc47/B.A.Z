@@ -1,4 +1,4 @@
-local eggsFolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/Build-A-Zoo/B.A.Z/main/modules/Roblox/BuildAZoo.lua"))().PlayerBuiltBlocks
+local eggsFolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/tnc47/B.A.Z/refs/heads/main/modules/Roblox/BuildAZoo.lua"))().PlayerBuiltBlocks
 
 local function cacheAnimationTrack(animator, track, animCache)
     animCache[#animCache + 1] = {
