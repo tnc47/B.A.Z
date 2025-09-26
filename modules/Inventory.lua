@@ -1,7 +1,6 @@
 local BuildAZoo = game:HttpGet("https://raw.githubusercontent.com/tnc47/B.A.Z/refs/heads/main/modules/Roblox/BuildAZoo.lua")
 local BuildAZooFolder = loadstring(BuildAZoo)()
 
--- helper อ่านค่า text/number จาก object
 local function readValue(obj)
     if not obj then return nil end
     if obj:IsA("StringValue") or obj:IsA("NumberValue") or obj:IsA("IntValue") then
