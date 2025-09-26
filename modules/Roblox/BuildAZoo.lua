@@ -1,4 +1,6 @@
+local Pets = workspace:FindFirstChild("Pets")
+local PlayerBuiltBlocks = workspace:FindFirstChild("PlayerBuiltBlocks")
 return {
-    Pets = workspace:FindFirstChild("Pets"),
-    PlayerBuiltBlocks = workspace:FindFirstChild("PlayerBuiltBlocks")
+    Pets = Pets,
+    PlayerBuiltBlocks = PlayerBuiltBlocks
 }
