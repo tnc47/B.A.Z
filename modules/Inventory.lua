@@ -39,4 +39,6 @@ local function GetInventoryFoodItems()
     return FoodData
 end
 
-GetInventoryFoodItems()
+return {
+    GetInventoryFoodItems = GetInventoryFoodItems
+}
