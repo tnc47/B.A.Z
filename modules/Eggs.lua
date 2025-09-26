@@ -1,3 +1,65 @@
+local function cacheAnimationTrack(animator, track, animCache)
+    animCache[#animCache + 1] = {
+        Animator = animator,
+        Animation = track.Animation,
+        TimePosition = track.TimePosition,
+        IsLooped = track.Looped,
+    }
+end
+
+local function cachePart(obj, partCache)
+    local key = "Part::" .. obj:GetFullName()
+    partCache[key] = {
+        Instance = obj,
+        Properties = {
+            Transparency = obj.Transparency,
+            CanCollide   = obj.CanCollide,
+            Anchored     = obj.Anchored,
+            Color        = obj.Color,
+            Material     = obj.Material,
+        }
+    }
+end
+
+local function cacheSurface(obj, partCache)
+    local key = "Surface::" .. obj:GetFullName()
+    partCache[key] = {
+        Instance = obj,
+        Properties = {
+            Transparency = obj.Transparency,
+            Color3       = obj.Color3,
+            Texture      = obj.Texture,
+        }
+    }
+end
+
+local function restoreProperties(inst, props)
+    for propName, value in pairs(props) do
+        pcall(function()
+            inst[propName] = value
+        end)
+    end
+end
+
+local function cacheEffect(obj, effectCache)
+    effectCache[#effectCache + 1] = {
+        Object  = obj,
+        Enabled = obj.Enabled,
+    }
+end
+
+local function cacheCenter(obj, effectCache)
+    effectCache[#effectCache + 1] = {
+        Object       = obj,
+        Transparency = obj.Transparency,
+    }
+end
+
+local function getKeys(obj)
+    local fullName = obj:GetFullName()
+    return "Part::" .. fullName, "Surface::" .. fullName
+end
+
 return {
     -- Roots
     eggsFolder = workspace:FindFirstChild("PlayerBuiltBlocks"),
@@ -10,27 +72,21 @@ return {
     -- ===== Animations =====
     pauseEggAnimations = function(self)
         self.animCache = {}
-
         local folder = self.eggsFolder
         if not folder then return end
-
         for _, built in ipairs(folder:GetChildren()) do
             for _, ac in ipairs(built:GetDescendants()) do
                 if ac:IsA("AnimationController") then
                     local animator = ac:FindFirstChildOfClass("Animator")
                     if animator then
                         for _, track in ipairs(animator:GetPlayingAnimationTracks()) do
-                            table.insert(self.animCache, {
-                                Animator = animator,
-                                Animation = track.Animation,
-                                TimePosition = track.TimePosition,
-                                IsLooped = track.Looped,
-                            })
+                            cacheAnimationTrack(animator, track, self.animCache)
                             track:Stop()
                         end
                     end
                 end
             end
+            -- Only wait once per built, not per descendant
             task.wait(0.01)
         end
     end,
@@ -58,32 +114,15 @@ return {
     hideEggs = function(self)
         local folder = self.eggsFolder
         if not folder then return end
-
         for _, built in ipairs(folder:GetChildren()) do
-            for _, obj in ipairs(built:GetDescendants()) do
+            local descendants = built:GetDescendants()
+            for i = 1, #descendants do
+                local obj = descendants[i]
                 if obj:IsA("BasePart") then
-                    local key = "Part::" .. obj:GetFullName()
-                    self.partCache[key] = {
-                        Instance = obj,
-                        Properties = {
-                            Transparency = obj.Transparency,
-                            CanCollide   = obj.CanCollide,
-                            Anchored     = obj.Anchored,
-                            Color        = obj.Color,
-                            Material     = obj.Material,
-                        }
-                    }
+                    cachePart(obj, self.partCache)
                     obj.Transparency = 1
                 elseif obj:IsA("Decal") or obj:IsA("Texture") then
-                    local key = "Surface::" .. obj:GetFullName()
-                    self.partCache[key] = {
-                        Instance = obj,
-                        Properties = {
-                            Transparency = obj.Transparency,
-                            Color3       = obj.Color3,
-                            Texture      = obj.Texture,
-                        }
-                    }
+                    cacheSurface(obj, self.partCache)
                     obj.Transparency = 1
                 end
             end
@@ -94,53 +133,41 @@ return {
     showEggs = function(self)
         local folder = self.eggsFolder
         if not folder then return end
-
         for _, built in ipairs(folder:GetChildren()) do
-            for _, obj in ipairs(built:GetDescendants()) do
-                local keyPart = "Part::" .. obj:GetFullName()
-                local keySurf = "Surface::" .. obj:GetFullName()
+            local descendants = built:GetDescendants()
+            for i = 1, #descendants do
+                local obj = descendants[i]
+                local keyPart, keySurf = getKeys(obj)
                 local data = self.partCache[keyPart] or self.partCache[keySurf]
-
                 if data then
                     local inst = data.Instance
                     local props = data.Properties
                     if inst and inst:IsDescendantOf(workspace) then
-                        for propName, value in pairs(props) do
-                            pcall(function()
-                                inst[propName] = value
-                            end)
-                        end
+                        restoreProperties(inst, props)
                     else
                         warn("[EggsController.showEggs] Instance removed:", keyPart or keySurf)
                     end
                 end
             end
         end
-
         self.partCache = {}
     end,
 
     -- ===== Effects (particles/lights & special parts) =====
     hideEggEffects = function(self)
         self.effectCache = {}
-
         local folder = self.eggsFolder
         if not folder then return end
-
         for _, built in ipairs(folder:GetChildren()) do
-            for _, obj in ipairs(built:GetDescendants()) do
+            local descendants = built:GetDescendants()
+            for i = 1, #descendants do
+                local obj = descendants[i]
                 if obj:IsA("ParticleEmitter") or obj:IsA("Beam") or obj:IsA("Trail")
                     or obj:IsA("PointLight") or obj:IsA("SpotLight") then
-                    table.insert(self.effectCache, {
-                        Object  = obj,
-                        Enabled = obj.Enabled,
-                    })
+                    cacheEffect(obj, self.effectCache)
                     obj.Enabled = false
                 elseif obj:IsA("BasePart") and obj.Name == "Center" then
-                    table.insert(self.effectCache, {
-                        Object       = obj,
-                        Transparency = obj.Transparency,
-                    })
+                    cacheCenter(obj, self.effectCache)
                     obj.Transparency = 1
                 end
             end
