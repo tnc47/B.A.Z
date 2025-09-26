@@ -39,3 +39,5 @@ end
 print("Eggs:", DumpTable(Eggs))
 print("Pets:", DumpTable(Pets))
 print("Island:", DumpTable(Island))
+
+print(DumpTable(Island:GetGetDataLandBelt())) -- Example usage of the new function

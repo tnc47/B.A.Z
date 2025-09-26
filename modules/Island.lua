@@ -5,7 +5,7 @@ return {
     GetOwnerLand = function(self)
         return BuildAZooFolder.IslandName
     end,
-    GetOwnerLandBelt = function(self)
+    GetDataLandBelt = function(self)
         local EggInBelt = {}
         local IslandName = self:GetOwnerLand()
         if not IslandName then
