@@ -1,43 +1,17 @@
-local Eggs = loadstring(game:HttpGet("https://raw.githubusercontent.com/tnc47/B.A.Z/refs/heads/main/modules/Eggs.lua"))()
-local Pets = loadstring(game:HttpGet("https://raw.githubusercontent.com/tnc47/B.A.Z/refs/heads/main/modules/Pets.lua"))()
-local Island = loadstring(game:HttpGet("https://raw.githubusercontent.com/tnc47/B.A.Z/refs/heads/main/modules/Island.lua"))()
-local Inventory = loadstring(game:HttpGet("https://raw.githubusercontent.com/tnc47/B.A.Z/refs/heads/main/modules/Inventory.lua"))()
-
-
-function DumpTable(table, nb)
-    if nb == nil then
-        nb = 0
-    end
-
-    if type(table) == "table" then
-        local s = ""
-        for _ = 1, nb + 1, 1 do
-            s = s .. "    "
-        end
-
-        s = "{\n"
-        for k, v in pairs(table) do
-            if type(k) ~= "number" then
-                k = '"' .. k .. '"'
-            end
-            for _ = 1, nb, 1 do
-                s = s .. "    "
-            end
-            s = s .. "[" .. k .. "] = " .. DumpTable(v, nb + 1) .. ",\n"
-        end
-
-        for _ = 1, nb, 1 do
-            s = s .. "    "
-        end
-
-        return s .. "}"
-    else
-        return tostring(table)
-    end
+local function loadModuleRaw(name: string, url: string)
+    local ok, raw = pcall(game.HttpGet, game, url)
+    assert(ok and type(raw) == "string", ("[%s] download failed: %s"):format(name, tostring(raw)))
+    local ok2, mod = pcall(loadstring(raw))
+    assert(ok2 and type(mod) == "function", ("[%s] compile failed: %s"):format(name, tostring(mod)))
+    local ok3, result = pcall(mod)
+    assert(ok3, ("[%s] init failed: %s"):format(name, tostring(result)))
+    return result
 end
 
--- print("Eggs:", DumpTable(Eggs))
--- print("Pets:", DumpTable(Pets))
--- print("Island:", DumpTable(Island))
+-- ===== Load all modules =====
+local Eggs     = loadModuleRaw("Eggs",     "https://raw.githubusercontent.com/tnc47/B.A.Z/refs/heads/main/modules/Eggs.lua")
+local Pets     = loadModuleRaw("Pets",     "https://raw.githubusercontent.com/tnc47/B.A.Z/refs/heads/main/modules/Pets.lua")
+local Island   = loadModuleRaw("Island",   "https://raw.githubusercontent.com/tnc47/B.A.Z/refs/heads/main/modules/Island.lua")
+local Inventory= loadModuleRaw("Inventory","https://raw.githubusercontent.com/tnc47/B.A.Z/refs/heads/main/modules/Inventory.lua")
+local Utils    = loadModuleRaw("Utils",    "https://raw.githubusercontent.com/tnc47/B.A.Z/refs/heads/main/modules/Utils.lua")
 
-print(DumpTable(Island:GetGetDataLandBelt())) -- Example usage of the new function
