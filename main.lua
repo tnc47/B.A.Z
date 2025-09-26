@@ -2,7 +2,6 @@ local Eggs = loadstring(game:HttpGet("https://raw.githubusercontent.com/tnc47/B.
 local Pets = loadstring(game:HttpGet("https://raw.githubusercontent.com/tnc47/B.A.Z/refs/heads/main/modules/Pets.lua"))()
 local Island = loadstring(game:HttpGet("https://raw.githubusercontent.com/tnc47/B.A.Z/refs/heads/main/modules/Island.lua"))()
 
-
 function DumpTable(table, nb)
     if nb == nil then
         nb = 0
@@ -35,9 +34,8 @@ function DumpTable(table, nb)
     end
 end
 
-
-print("Eggs:", DumpTable(Eggs))
-print("Pets:", DumpTable(Pets))
-print("Island:", DumpTable(Island))
+-- print("Eggs:", DumpTable(Eggs))
+-- print("Pets:", DumpTable(Pets))
+-- print("Island:", DumpTable(Island))
 
 print(DumpTable(Island:GetGetDataLandBelt())) -- Example usage of the new function
