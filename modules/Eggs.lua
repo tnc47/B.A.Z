@@ -1,3 +1,5 @@
+local eggsFolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/Build-A-Zoo/B.A.Z/main/modules/Roblox/BuildAZoo.lua"))().PlayerBuiltBlocks
+
 local function cacheAnimationTrack(animator, track, animCache)
     animCache[#animCache + 1] = {
         Animator = animator,
@@ -62,7 +64,7 @@ end
 
 return {
     -- Roots
-    eggsFolder = ,
+    eggsFolder = eggsFolder,
 
     -- Caches
     partCache = {},   -- BasePart / Decal / Texture state
