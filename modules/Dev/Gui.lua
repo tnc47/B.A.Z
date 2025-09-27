@@ -165,6 +165,17 @@ local SearchBar = Main.Searchbar
 local Filler = SearchBar.CanvasGroup.Filler
 local Prompt = Main.Prompt
 local NotePrompt = Main.NotePrompt
+-- [PATCH] Force persistent left sidebar; disable top tab bar
+do
+    BarType = 'Side'
+    SideBarClosed = false
+    pcall(function()
+        if Main.TabList then Main.TabList.Visible = false end
+        if Main.SideTabList then Main.SideTabList.Visible = true end
+        if Topbar and Topbar.Type then Topbar.Type.Visible = false end -- hide sidebar toggle icon
+    end)
+end
+
 
 Rayfield.DisplayOrder = 100
 LoadingFrame.Version.Text = Release
@@ -180,8 +191,8 @@ local Hidden = false
 local Debounce = false
 local clicked = false
 local SearchHided = true
-local SideBarClosed = true
-local BarType = 'Top'
+local SideBarClosed = false
+local BarType = 'Side'
 local Notifications = Rayfield.Notifications
 
 local SelectedTheme = RayfieldLibrary.Theme.Default
@@ -741,6 +752,8 @@ function RayfieldLibrary:Notify(NotificationSettings)
 end
 
 function CloseSideBar()
+	-- patched: keep sidebar always open
+	return
 	Debounce = true
 	SideBarClosed = true
 	for _,tabbtn in pairs(SideList:GetChildren()) do
@@ -753,7 +766,7 @@ function CloseSideBar()
 	TweenService:Create(Main.SideTabList.UIStroke, TweenInfo.new(0.4, Enum.EasingStyle.Quint),{Transparency = 1}):Play()
 	TweenService:Create(Main.SideTabList.RDMT, TweenInfo.new(0.4, Enum.EasingStyle.Quint),{TextTransparency = 1}):Play()
 	wait(.4)
-	Main.SideTabList.Visible = false
+	Main.SideTabList.Visible = true
 	wait(0.2)
 	Debounce = false
 end
