@@ -1,166 +1,125 @@
 xpcall(function()
-    local function loadModuleRaw(url) return loadstring(game:HttpGet(url))() end
-    local Eggs = loadModuleRaw(
-                     "https://raw.githubusercontent.com/tnc47/B.A.Z/refs/heads/main/modules/Eggs.lua")
-    local Pets = loadModuleRaw(
-                     "https://raw.githubusercontent.com/tnc47/B.A.Z/refs/heads/main/modules/Pets.lua")
-    local Island = loadModuleRaw(
-                       "https://raw.githubusercontent.com/tnc47/B.A.Z/refs/heads/main/modules/Island.lua")
-    local Inventory = loadModuleRaw(
-                          "https://raw.githubusercontent.com/tnc47/B.A.Z/refs/heads/main/modules/Inventory.lua")
-    local Utils = loadModuleRaw(
-                      "https://raw.githubusercontent.com/tnc47/B.A.Z/refs/heads/main/modules/Utils.lua")
-    local Rayfield = loadModuleRaw(
-                         "https://raw.githubusercontent.com/tnc47/B.A.Z/refs/heads/main/modules/Dev/Gui.lua")
+    local function loadModuleRaw(url)
+        return loadstring(game:HttpGet(url))()
+    end
 
+    local baseUrl = "https://raw.githubusercontent.com/tnc47/B.A.Z/refs/heads/main/modules/"
+    local Eggs      = loadModuleRaw(baseUrl .. "Eggs.lua")
+    local Pets      = loadModuleRaw(baseUrl .. "Pets.lua")
+    local Island    = loadModuleRaw(baseUrl .. "Island.lua")
+    local Inventory = loadModuleRaw(baseUrl .. "Inventory.lua")
+    local Utils     = loadModuleRaw(baseUrl .. "Utils.lua")
+    local Rayfield  = loadModuleRaw(baseUrl .. "Dev/Gui.lua")
+
+    -- หน้าต่างหลัก
     local Window = Rayfield:CreateWindow({
-        Name = "Rayfield Example Window",
-        Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
-        LoadingTitle = "Rayfield Interface Suite",
-        LoadingSubtitle = "by Sirius",
-        ShowText = "Rayfield", -- for mobile users to unhide rayfield, change if you'd like
-        Theme = "Default", -- Check https://docs.sirius.menu/rayfield/configuration/themes
-
-        ToggleUIKeybind = "K", -- The keybind to toggle the UI visibility (string like "K" or Enum.KeyCode)
-
-        DisableRayfieldPrompts = false,
-        DisableBuildWarnings = false, -- Prevents Rayfield from warning when the script has a version mismatch with the interface
+        Name = "QQ Utilities - Build A Zoo",
+        Icon = "paw-print", -- ใช้ Lucide icon (หรือ 0 หากไม่ใช้)
+        LoadingTitle = "กำลังโหลด UI",
+        LoadingSubtitle = "โดยทีมพัฒนา QQ",
+        ShowText = "เปิดเมนู QQ", -- สำหรับผู้ใช้มือถือ
+        Theme = "Default",
+        ToggleUIKeybind = "K",
 
         ConfigurationSaving = {
             Enabled = true,
-            FolderName = nil, -- Create a custom folder for your hub/game
-            FileName = "Big Hub"
+            FolderName = "QQ_BUILD_A_ZOO",
+            FileName = "utils_config"
         },
 
         Discord = {
-            Enabled = false, -- Prompt the user to join your Discord server if their executor supports it
-            Invite = "noinvitelink", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ ABCD would be ABCD
-            RememberJoins = true -- Set this to false to make them join the discord every time they load it up
+            Enabled = false,
+            Invite = "noinvitelink",
+            RememberJoins = true
         },
 
-        KeySystem = false, -- Set this to true to use our key system
-        KeySettings = {
-            Title = "Untitled",
-            Subtitle = "Key System",
-            Note = "No method of obtaining the key is provided", -- Use this to tell the user how to get a key
-            FileName = "Key", -- It is recommended to use something unique as other scripts using Rayfield may overwrite your key file
-            SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
-            GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
-            Key = {"Hello"} -- List of keys that will be accepted by the system, can be RAW file links (pastebin, github etc) or simple strings ("hello","key22")
-        }
+        KeySystem = false
     })
 
-    local Tab = Window:CreateTab("Tab Example", 4483362458) -- Title, Image
-    local Section = Tab:CreateSection("Section Example")
-    Section:Set("Section Example")
-    local Divider = Tab:CreateDivider()
-    Divider:Set(false) -- Whether the divider's visibility is to be set to true or false.
-    Rayfield:SetVisibility(false)
-    Rayfield:IsVisible()
+    -- แท็บหลัก
+    local Tab = Window:CreateTab("เมนูหลัก", "menu")
 
-    Rayfield:Notify({
-        Title = "Notification Title",
-        Content = "Notification Content",
-        Duration = 6.5,
-        Image = 4483362458
-    })
+    -- ส่วน: ควบคุมทั่วไป
+    local Section = Tab:CreateSection("การควบคุมพื้นฐาน")
 
     local Button = Tab:CreateButton({
-        Name = "Button Example",
+        Name = "ซื้อไข่ BasicEgg",
         Callback = function()
-            -- The function that takes place when the button is pressed
+            Eggs:BuyEgg("BasicEgg")
         end
     })
-
-    Button:Set("Button Example")
 
     local Toggle = Tab:CreateToggle({
-        Name = "Toggle Example",
+        Name = "เปิด/ปิด ระบบอัตโนมัติ",
         CurrentValue = false,
-        Flag = "Toggle1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-        Callback = function(Value)
-            -- The function that takes place when the toggle is pressed
-            -- The variable (Value) is a boolean on whether the toggle is true or false
-        end
-    })
-    Toggle:Set(false)
-
-    local ColorPicker = Tab:CreateColorPicker({
-        Name = "Color Picker",
-        Color = Color3.fromRGB(255, 255, 255),
-        Flag = "ColorPicker1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-        Callback = function(Value)
-            -- The function that takes place every time the color picker is moved/changed
-            -- The variable (Value) is a Color3fromRGB value based on which color is selected
+        Flag = "AutoFarm",
+        Callback = function(state)
+            print("AutoFarm เปิด:", state)
         end
     })
 
     local Slider = Tab:CreateSlider({
-        Name = "Slider Example",
-        Range = {0, 100},
-        Increment = 10,
-        Suffix = "Bananas",
+        Name = "จำนวนรอบฟาร์ม",
+        Range = {1, 100},
+        Increment = 1,
+        Suffix = "รอบ",
         CurrentValue = 10,
-        Flag = "Slider1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-        Callback = function(Value)
-            -- The function that takes place when the slider changes
-            -- The variable (Value) is a number which correlates to the value the slider is currently at
+        Flag = "FarmLoop",
+        Callback = function(val)
+            print("ตั้งค่าฟาร์มเป็น:", val)
         end
     })
-
-    Slider:Set(10) -- The new slider integer value
 
     local Input = Tab:CreateInput({
-        Name = "Input Example",
-        CurrentValue = "",
-        PlaceholderText = "Input Placeholder",
+        Name = "ชื่อตัวละคร",
+        PlaceholderText = "กรอกชื่อ...",
         RemoveTextAfterFocusLost = false,
-        Flag = "Input1",
-        Callback = function(Text)
-            -- The function that takes place when the input is changed
-            -- The variable (Text) is a string for the value in the text box
+        Flag = "CharName",
+        Callback = function(text)
+            print("ชื่อตัวละคร:", text)
         end
     })
-
-    Input:Set("New Text") -- The new input text value
 
     local Dropdown = Tab:CreateDropdown({
-        Name = "Dropdown Example",
-        Options = {"Option 1", "Option 2"},
-        CurrentOption = {"Option 1"},
+        Name = "เลือกเกาะ",
+        Options = {"Island_1", "Island_2", "Island_3"},
+        CurrentOption = {"Island_1"},
         MultipleOptions = false,
-        Flag = "Dropdown1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-        Callback = function(Options)
-            -- The function that takes place when the selected option is changed
-            -- The variable (Options) is a table of strings for the current selected options
+        Flag = "Island",
+        Callback = function(opts)
+            print("เกาะที่เลือก:", opts[1])
         end
     })
-
-    Dropdown:Refresh({"New Option 1", "New Option 2"}) -- The new list of options
-
-    Dropdown:Set({"Option 2"}) -- "Option 2" will now be selected
 
     local Keybind = Tab:CreateKeybind({
-        Name = "Keybind Example",
-        CurrentKeybind = "Q",
+        Name = "ตั้งคีย์ลัดปิด/เปิด UI",
+        CurrentKeybind = "RightCtrl",
         HoldToInteract = false,
-        Flag = "Keybind1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-        Callback = function(Keybind)
-            -- The function that takes place when the keybind is pressed
-            -- The variable (Keybind) is a boolean for whether the keybind is being held or not (HoldToInteract needs to be true)
+        Flag = "Hotkey",
+        Callback = function()
+            Rayfield:SetVisibility(not Rayfield:IsVisible())
         end
     })
 
-    Keybind:Set("RightCtrl") -- Keybind (string)
+    -- ป้ายข้อความ
+    local Label = Tab:CreateLabel("สถานะ: พร้อมใช้งาน", "check", Color3.fromRGB(0, 255, 0), false)
 
-    local Label = Tab:CreateLabel("Label Example", 4483362458,
-                                  Color3.fromRGB(255, 255, 255), false) -- Title, Icon, Color, IgnoreTheme
-    local Label = Tab:CreateLabel("Label Example", "rewind")
-    Label:Set("Label Example", 4483362458, Color3.fromRGB(255, 255, 255), false) -- Title, Icon, Color, IgnoreTheme
     local Paragraph = Tab:CreateParagraph({
-        Title = "Paragraph Example",
-        Content = "Paragraph Example"
+        Title = "คำแนะนำ",
+        Content = "คุณสามารถตั้งค่าการฟาร์ม, ซื้อไข่, ปิด UI และปรับแต่งระบบต่าง ๆ ได้ที่เมนูนี้"
     })
-    Paragraph:Set({Title = "Paragraph Example", Content = "Paragraph Example"})
 
-end, print)
+    -- แจ้งเตือนเมื่อโหลดเสร็จ
+    Rayfield:Notify({
+        Title = "โหลดสำเร็จ!",
+        Content = "โมดูลและเมนูทั้งหมดถูกโหลดเรียบร้อยแล้ว",
+        Duration = 5,
+        Image = "check"
+    })
+
+    -- แสดง UI โดยไม่ต้องกด
+    Rayfield:SetVisibility(true)
+
+end, function(err)
+    warn("พบข้อผิดพลาด:", err)
+end)
