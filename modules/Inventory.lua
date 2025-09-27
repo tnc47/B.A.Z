@@ -92,7 +92,7 @@ local function GetEggFormInv(): ResultMap
 	-- รายชื่อปุ่ม Muts ที่ต้องนับ (ใช้ชื่อให้ตรงกับ UI — คง "Electirc" ไว้ตามเกม)
 	local mutsTargets = { "Diamond", "Dino", "Electirc", "Fire", "Golden", "Night", "Snow" }
 	-- เผื่อบางที่สะกด Electric → Electirc
-	local alias = { Electric = "Electirc" }
+	-- local alias = { Electric = "Electirc" }
 
 	local function ensureEntry(key: string, child: Instance): EggEntry
 		local entry = result[key]
@@ -134,24 +134,18 @@ local function GetEggFormInv(): ResultMap
 
 					-- ====== ดึง/นับปุ่ม Muts ใต้ BTN.Muts (เฉพาะที่ Visible จริง) ======
 					local Muts = BTN:FindFirstChild("Muts")
+					local isHave = false
 					if Muts then
 						for _, target in ipairs(mutsTargets) do
 							local node = Muts:FindFirstChild(target)
-							if not node then
-								-- ลองชื่อ alias
-								for alt, real in pairs(alias) do
-									if target == alt then
-                                        node = Muts:FindFirstChild(real)
-										break
-									end
-								end
-							end
 							if node and node:IsA("GuiObject") and isActuallyVisible(node) then
 								entry.data[target] = (entry.data[target] or 0) + 1
-							else
-								entry.data['Normal'] = (entry.data['Normal'] or 0) + 1
+								isHave = true
 							end
 						end
+					end
+					if not isHave then
+						entry.data["Normal"] = (entry.data["Normal"] or 0) + 1
 					end
 				end
 			end
