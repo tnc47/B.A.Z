@@ -108,6 +108,9 @@ local RayfieldLibrary = {
 
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
+local function tween(obj, props, t, style, dir)
+	TweenService:Create(obj, TweenInfo.new(t or 0.6, style or Enum.EasingStyle.Quint, dir or Enum.EasingDirection.Out), props):Play()
+end
 local HttpService = game:GetService("HttpService")
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
@@ -174,13 +177,14 @@ local SelectedTheme = RayfieldLibrary.Theme.Default
 function ChangeTheme(ThemeName)
 	SelectedTheme = RayfieldLibrary.Theme[ThemeName]
 	for _, obj in ipairs(Rayfield:GetDescendants()) do
-		if obj.ClassName == "TextLabel" or obj.ClassName == "TextBox" or obj.ClassName == "TextButton" then
-			if SelectedTheme.TextFont ~= "Default" then 
-				obj.TextColor3 = SelectedTheme.TextColor
-				obj.Font = SelectedTheme.TextFont
-			end
-		end
-	end
+    if obj.ClassName == "TextLabel" or obj.ClassName == "TextBox" or obj.ClassName == "TextButton" then
+        -- Always enforce theme text color; only change font if theme specifies a concrete font
+        obj.TextColor3 = SelectedTheme.TextColor
+        if SelectedTheme.TextFont ~= "Default" then
+            obj.Font = SelectedTheme.TextFont
+        end
+    end
+end
 
 	Rayfield.Main.BackgroundColor3 = SelectedTheme.Background
 	Rayfield.Main.Topbar.BackgroundColor3 = SelectedTheme.Topbar
@@ -257,7 +261,10 @@ local function LoadConfiguration(Configuration)
 	end
 end
 
-local function SaveConfiguration()
+
+    -- Debounced save to reduce disk writes
+    local _rfld_saveQueued = false
+    local function WriteConfiguration()
 	if not CEnabled then return end
 	local Data = {}
 	for i,v in pairs(RayfieldLibrary.Flags) do
@@ -268,7 +275,17 @@ local function SaveConfiguration()
 		end
 	end	
 	writefile(ConfigurationFolder .. "/" .. CFileName .. ConfigurationExtension, tostring(HttpService:JSONEncode(Data)))
-end
+    end
+
+    local function SaveConfiguration()
+        if not CEnabled then return end
+        if _rfld_saveQueued then return end
+        _rfld_saveQueued = true
+        task.delay(0.5, function()
+            _rfld_saveQueued = false
+            WriteConfiguration()
+        end)
+    end
 
 local neon = (function() -- Open sourced neon module
 	local module = {}
@@ -507,7 +524,7 @@ function RayfieldLibrary:Notify(NotificationSettings)
 			blurlight.FocusDistance = 51.6
 			blurlight.InFocusRadius = 50
 			blurlight.NearIntensity = 1
-			game:GetService("Debris"):AddItem(script,0)
+			game:GetService("Debris"):AddItem(blurlight, 0)
 		end
 
 		Notification.Actions.Template.Visible = false
@@ -2604,7 +2621,7 @@ function RayfieldLibrary:CreateWindow(Settings)
 			TweenService:Create(Slider.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Quint), {Transparency = 0}):Play()
 			TweenService:Create(Slider.Title, TweenInfo.new(0.7, Enum.EasingStyle.Quint), {TextTransparency = 0}):Play()	
 
-			Slider.Main.Progress.Size =	UDim2.new(0, Slider.Main.AbsoluteSize.X * ((SliderSettings.CurrentValue + SliderSettings.Range[1]) / (SliderSettings.Range[2] - SliderSettings.Range[1])) > 5 and Slider.Main.AbsoluteSize.X * (SliderSettings.CurrentValue / (SliderSettings.Range[2] - SliderSettings.Range[1])) or 5, 1, 0)
+			Slider.Main.Progress.Size = UDim2.new(0, math.max(5, (Slider.Main.AbsoluteSize.X * ((SliderSettings.CurrentValue - SliderSettings.Range[1]) / (SliderSettings.Range[2] - SliderSettings.Range[1])))), 1, 0)
 
 			if not SliderSettings.Suffix then
 				Slider.Main.Information.Text = tostring(SliderSettings.CurrentValue)
