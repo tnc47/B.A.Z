@@ -35,16 +35,5 @@ xpcall(function ()
       }
    })
 
-   local Taps = {
-      Window:CreateTab("ประสิทธิภาพ", 4483362458),
-      Window:CreateTab("กระเป๋า", 4483362458),
-      Window:CreateTab("การตั้งค่า", 4483362458),
-   }
-
-   local Sections = {
-      Taps[1]:CreateSection("ฟาร์ม"),
-      Taps[2]:CreateSection("รายการ"),
-      Taps[5]:CreateSection("ตั้งค่า"),
-   }
 
 end, print)
