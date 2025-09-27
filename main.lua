@@ -1,4 +1,5 @@
 xpcall(function()
+    local RunService = game:GetService("RunService")
     local function loadModuleRaw(url) return loadstring(game:HttpGet(url))() end
 
     local baseUrl =
@@ -37,5 +38,52 @@ xpcall(function()
             Key = {"Hello"} -- List of keys that will be accepted by the system, can be RAW file links (pastebin, github etc) or simple strings ("hello","key22")
         }
     })
+
+    local tabs = {
+        Inventory = Window:CreateTab("อินเวนทอรี")
+    }
+
+    tabs.Inventory:CreateSection(
+        "สแกนและแสดงไข่ในคลัง")
+    local invEgg = tabs.Inventory:CreateParagraph({
+        Title = "ไข่คลัง",
+        Content = "ยังไม่ได้สแกน"
+    })
+    local invFood = tabs.Inventory:CreateParagraph({
+        Title = "อาหารคลัง",
+        Content = "ยังไม่ได้สแกน"
+    })
+
+    task.spawn(function()
+        while task.wait(1) do -- อัปเดตทุก 1 วินาที
+            local eggLines, foodLines = {}, {}
+
+            for key, value in pairs(Inventory:GetEggFormInv()) do
+                table.insert(eggLines, ("%s ทั้งหมด %s"):format(key, value.allcount))
+
+                for mutName, count in pairs(value.data) do
+                    if count > 0 then
+                        table.insert(eggLines, ("\t- %s %s"):format(mutName, count))
+                    end
+                end
+
+                table.insert(eggLines, "") -- เว้นบรรทัดระหว่างไข่
+            end
+
+            for key, value in pairs(Inventory:GetFoodFormInv()) do
+                table.insert(foodLines, ("%s - %s"):format(key, value.count))
+            end
+
+            invEgg:Set({
+                Title   = "ไข่คลัง",
+                Content = table.concat(eggLines, "\n")
+            })
+
+            invFood:Set({
+                Title   = "อาหารคลัง",
+                Content = table.concat(foodLines, "\n")
+            })
+        end
+    end)
 
 end, function(err) warn("พบข้อผิดพลาด:", err) end)

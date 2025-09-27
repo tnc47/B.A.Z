@@ -3,8 +3,9 @@ local BuildAZoo = game:HttpGet("https://raw.githubusercontent.com/tnc47/B.A.Z/re
 local BuildAZooFolder = loadstring(BuildAZoo)()
 
 -- ====== Types ======
-type ItemData = { count: number, name: Instance }
-type ResultMap = { [string]: ItemData }
+type MutsMap   = { [string]: number }
+type EggEntry  = { allcount: number, name: Instance, data: MutsMap }
+type ResultMap = { [string]: EggEntry }
 
 -- ====== Helpers ======
 local function trim(s: string): string
@@ -13,7 +14,6 @@ end
 
 local function normalizeKey(s: string?): string?
 	if not s then return nil end
-	-- ตัดช่องว่างหลายตัว -> ตัวเดียว, ลบ \r\n\t, แล้ว trim
 	local cleaned = s:gsub("[%c]", " "):gsub("%s+", " ")
 	cleaned = trim(cleaned)
 	return (#cleaned > 0) and cleaned or nil
@@ -36,20 +36,32 @@ local function readText(obj: Instance?): string?
 	return nil
 end
 
--- แปลง text → number (รองรับ "x12", "12x", "Qty: 12", "(12)", "[12]" ฯลฯ)
 local function onlyDigits(str: string?): number?
 	if not str then return nil end
 	local s = tostring(str)
-	-- เอาเลขลบได้ (เผื่อบางเกมใส่ -1 เป็นตัวบอกสถานะ)
 	local n = s:match("%-?%d+")
 	return n and tonumber(n) or nil
 end
 
 local function isTemplateLike(inst: Instance): boolean
-	-- กัน item template ตามชื่อ/attribute ทั่วไป
 	if inst:GetAttribute("Template") == true then return true end
 	local n = inst.Name:lower()
 	return n == "item" or n:find("template") ~= nil
+end
+
+-- เช็กว่า GUI มองเห็นจริง (รวม parent chain)
+local Players = game:GetService("Players")
+local LP = Players.LocalPlayer
+local function isActuallyVisible(gui: Instance): boolean
+	if not gui or not gui:IsA("GuiObject") then return false end
+	local cur: Instance? = gui
+	while cur and cur ~= LP do
+		if cur:IsA("GuiObject") and (cur.Visible == false) then
+			return false
+		end
+		cur = cur.Parent
+	end
+	return (gui :: GuiObject).Visible == true
 end
 
 -- ====== Find roots ======
@@ -59,35 +71,83 @@ local function getStorageGui()
 	return gui, screenStorage
 end
 
--- ====== Scanners ======
-
--- ดึงจำนวน "ไข่" จาก UI คลัง (ScreenStorage.Frame.Content.ScrollingFrame)
+-- ====== MAIN: ดึงไข่ + รวมข้อมูลปุ่ม Muts ต่อไอเท็ม ======
+-- รูปแบบคืนค่า:
+-- {
+--   [<EggName>] = {
+--       allcount = <จำนวนไอเท็มชนิดนี้ทั้งหมดใน ScrollingFrame>,
+--       name     = <Instance ของไอเท็มล่าสุดที่พบ>,
+--       data     = { Diamond = n, Dino = n, Electirc = n, Fire = n, Golden = n, Night = n, Snow = n }
+--   },
+--   ...
+-- }
 local function GetEggFormInv(): ResultMap
 	local _, screenStorage = getStorageGui()
-	local frame = screenStorage:WaitForChild("Frame")
+	local frame   = screenStorage:WaitForChild("Frame")
 	local content = frame:WaitForChild("Content")
-	local sf = content:WaitForChild("ScrollingFrame")
+	local sf      = content:WaitForChild("ScrollingFrame")
 
 	local result: ResultMap = {}
+
+	-- รายชื่อปุ่ม Muts ที่ต้องนับ (ใช้ชื่อให้ตรงกับ UI — คง "Electirc" ไว้ตามเกม)
+	local mutsTargets = { "Diamond", "Dino", "Electirc", "Fire", "Golden", "Night", "Snow" }
+	-- เผื่อบางที่สะกด Electric → Electirc
+	local alias = { Electric = "Electirc" }
+
+	local function ensureEntry(key: string, child: Instance): EggEntry
+		local entry = result[key]
+		if entry == nil then
+			entry = {
+				allcount = 0,
+				name     = child,
+				data     = {}
+			}
+			-- init 0 ให้ครบทุกคีย์เพื่อความคงที่ของ schema
+			for _, t in ipairs(mutsTargets) do
+				entry.data[t] = 0
+			end
+			result[key] = entry
+		end
+		-- อัพเดตอ้างอิง instance ล่าสุดไว้ให้ด้วย
+		entry.name = child
+		return entry
+	end
 
 	for _, child in ipairs(sf:GetChildren()) do
 		if child:IsA("Frame") and not isTemplateLike(child) then
 			local BTN = child:FindFirstChild("BTN")
 			if BTN then
+				-- ====== ชื่อไข่จาก Stat/NAME ======
 				local Stat = BTN:FindFirstChild("Stat")
-				if Stat then
-					local NAME = Stat:FindFirstChild("NAME")
-					if NAME then
-						-- บางเกมจะมี Value เป็น TextLabel ภายใน NAME
-						local valueObj = NAME:FindFirstChild("Value")
-						local keyRaw = valueObj and readText(valueObj) or readText(NAME) or NAME.Name
-						local key = normalizeKey(keyRaw)
-						if key then
-							local entry = result[key]
-							if entry then
-								entry.count += 1
-							else
-								result[key] = { count = 1, name = child }
+				local NAME = Stat and Stat:FindFirstChild("NAME") or nil
+				local key: string? = nil
+				if NAME then
+					local valueObj = NAME:FindFirstChild("Value")
+					local keyRaw = valueObj and readText(valueObj) or readText(NAME) or NAME.Name
+					key = normalizeKey(keyRaw)
+				end
+
+				if key then
+					local entry = ensureEntry(key, child)
+					-- นับไอเท็มรวม 1 ชิ้น
+					entry.allcount += 1
+
+					-- ====== ดึง/นับปุ่ม Muts ใต้ BTN.Muts (เฉพาะที่ Visible จริง) ======
+					local Muts = BTN:FindFirstChild("Muts")
+					if Muts then
+						for _, target in ipairs(mutsTargets) do
+							local node = Muts:FindFirstChild(target)
+							if not node then
+								-- ลองชื่อ alias
+								for alt, real in pairs(alias) do
+									if target == alt then
+                                        node = Muts:FindFirstChild(real)
+										break
+									end
+								end
+							end
+							if node and node:IsA("GuiObject") and isActuallyVisible(node) then
+								entry.data[target] = (entry.data[target] or 0) + 1
 							end
 						end
 					end
@@ -99,14 +159,14 @@ local function GetEggFormInv(): ResultMap
 	return result
 end
 
--- ดึงจำนวน "อาหาร" จาก UI คลัง (ScreenStorage.Frame.ContentFood.ScrollingFrame)
-local function GetFoodFormInv(): ResultMap
+-- ====== อาหารเหมือนเดิม (คงไว้ตามของเดิม) ======
+local function GetFoodFormInv()
 	local _, screenStorage = getStorageGui()
 	local frame = screenStorage:WaitForChild("Frame")
 	local contentFood = frame:WaitForChild("ContentFood")
 	local sf = contentFood:WaitForChild("ScrollingFrame")
 
-	local result: ResultMap = {}
+	local result: { [string]: { count: number, name: Instance } } = {}
 
 	for _, child in ipairs(sf:GetChildren()) do
 		if child:IsA("Frame") and not isTemplateLike(child) then
@@ -118,7 +178,6 @@ local function GetFoodFormInv(): ResultMap
 					local NUM  = Stat:FindFirstChild("NUM")
 
 					if NAME and NUM then
-						-- NAME อาจมี Value เป็น TextLabel หรือ StringValue
 						local nameVal = NAME:FindFirstChild("Value")
 						local keyRaw = (nameVal and readText(nameVal)) or readText(NAME) or NAME.Name
 						local key = normalizeKey(keyRaw)
@@ -139,6 +198,6 @@ local function GetFoodFormInv(): ResultMap
 end
 
 return {
-	GetEggFormInv = GetEggFormInv,
+	GetEggFormInv  = GetEggFormInv,
 	GetFoodFormInv = GetFoodFormInv,
 }
