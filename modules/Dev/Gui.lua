@@ -157,6 +157,17 @@ local Topbar = Main.Topbar
 local Elements = Main.Elements
 local LoadingFrame = Main.LoadingFrame
 local TabList = Main.TabList
+	-- Backfill Shadow for TabList.Template if missing
+	local __tpl = TabList:FindFirstChild("Template")
+	if __tpl and not __tpl:FindFirstChild("Shadow") then
+		local __shadow = Instance.new("ImageLabel")
+		__shadow.Name = "Shadow"
+		__shadow.BackgroundTransparency = 1
+		__shadow.ImageTransparency = 1
+		__shadow.Size = UDim2.new(1, 0, 1, 0)
+		__shadow.Position = UDim2.new(0, 0, 0, 0)
+		__shadow.Parent = __tpl
+	end
 
 Rayfield.DisplayOrder = 100
 LoadingFrame.Version.Text = Release
