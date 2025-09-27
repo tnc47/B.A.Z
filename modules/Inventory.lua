@@ -148,6 +148,8 @@ local function GetEggFormInv(): ResultMap
 							end
 							if node and node:IsA("GuiObject") and isActuallyVisible(node) then
 								entry.data[target] = (entry.data[target] or 0) + 1
+							else
+								entry.data['Normal'] = (entry.data['Normal'] or 0) + 1
 							end
 						end
 					end

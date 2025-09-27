@@ -59,7 +59,7 @@ xpcall(function()
             local eggLines, foodLines = {}, {}
 
             for key, value in pairs(Inventory:GetEggFormInv()) do
-                table.insert(eggLines, ("%s ทั้งหมด %s"):format(key, value.allcount))
+                table.insert(eggLines, ("%s ทั้งหมด %s"):format(key, value.allcount or 0))
 
                 for mutName, count in pairs(value.data) do
                     if count > 0 then
